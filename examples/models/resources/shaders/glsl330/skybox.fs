@@ -4,7 +4,7 @@
 *
 *   Copyright (c) 2017 Victor Fisac
 *
-*	19-Jun-2020 - modified by Giuseppe Mastrangelo (@peppemas) - VFlip Support
+*    19-Jun-2020 - modified by Giuseppe Mastrangelo (@peppemas) - VFlip Support
 *
 **********************************************************************************************/
 
@@ -20,19 +20,13 @@ uniform bool vflipped;
 // Output fragment color
 out vec4 finalColor;
 
-vec4 flipTextureCube(samplerCube sampler, vec3 texCoord) {
-	return texture(sampler, vec3(texCoord.x,-texCoord.y,texCoord.z));
-}
-
 void main()
 {
     // Fetch color from texture map
-    vec3 color;
+    vec3 color = vec3(0.0);
 
-    if (vflipped )
-    	color = flipTextureCube(environmentMap, fragPosition).rgb;
-    else 
-    	color = texture(environmentMap, fragPosition).rgb;
+    if (vflipped) color = texture(environmentMap, vec3(fragPosition.x, -fragPosition.y, fragPosition.z)).rgb;
+    else color = texture(environmentMap, fragPosition).rgb;
 
     // Apply gamma correction
     color = color/(color + vec3(1.0));

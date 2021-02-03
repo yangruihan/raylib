@@ -1,43 +1,28 @@
-/*******************************************************************************************
-*
-*   rPBR [shader] - Background skybox fragment shader
-*
-*   Copyright (c) 2017 Victor Fisac
-*
-*	19-Jun-2020 - modified by Giuseppe Mastrangelo (@peppemas) - VFlip Support
-*
-**********************************************************************************************/
+#version 100
 
-#version 110
+precision mediump float;
 
 // Input vertex attributes (from vertex shader)
-in vec3 fragPosition;
+varying vec3 fragPosition;
 
 // Input uniform values
 uniform samplerCube environmentMap;
 uniform bool vflipped;
 
-// Output fragment color
-out vec4 finalColor;
-
-vec4 flipTextureCube(samplerCube sampler, vec3 texCoord) {
-	return texture(sampler, vec3(texCoord.x,-texCoord.y,texCoord.z));
-}
-
 void main()
 {
     // Fetch color from texture map
-    vec3 color;
+    vec4 texelColor = vec4(0.0);
 
-    if (vflipped )
-    	color = flipTextureCube(environmentMap, fragPosition).rgb;
-    else 
-    	color = texture(environmentMap, fragPosition).rgb;
+    if (vflipped) texelColor = textureCube(environmentMap, vec3(fragPosition.x, -fragPosition.y, fragPosition.z));
+    else texelColor = textureCube(environmentMap, fragPosition);
 
+    vec3 color = vec3(texelColor.x, texelColor.y, texelColor.z);
+    
     // Apply gamma correction
     color = color/(color + vec3(1.0));
     color = pow(color, vec3(1.0/2.2));
 
     // Calculate final fragment color
-    finalColor = vec4(color, 1.0);
+    gl_FragColor = vec4(color, 1.0);
 }
