@@ -31,7 +31,7 @@
 *
 *   LICENSE: zlib/libpng
 *
-*   Copyright (c) 2014-2021 Ramon Santamaria (@raysan5)
+*   Copyright (c) 2014-2022 Ramon Santamaria (@raysan5)
 *
 *   This software is provided "as-is", without any express or implied warranty. In no event
 *   will the authors be held liable for any damages arising from the use of this software.
@@ -78,48 +78,41 @@
     #endif
 #endif
 
-// Wave type, defines audio wave data
+// Wave, audio wave data
 typedef struct Wave {
-    unsigned int sampleCount;       // Total number of samples
-    unsigned int sampleRate;        // Frequency (samples per second)
-    unsigned int sampleSize;        // Bit depth (bits per sample): 8, 16, 32 (24 not supported)
-    unsigned int channels;          // Number of channels (1-mono, 2-stereo)
-    void *data;                     // Buffer data pointer
+    unsigned int frameCount;    // Total number of frames (considering channels)
+    unsigned int sampleRate;    // Frequency (samples per second)
+    unsigned int sampleSize;    // Bit depth (bits per sample): 8, 16, 32 (24 not supported)
+    unsigned int channels;      // Number of channels (1-mono, 2-stereo, ...)
+    void *data;                 // Buffer data pointer
 } Wave;
 
 typedef struct rAudioBuffer rAudioBuffer;
 
-// Audio stream type
-// NOTE: Useful to create custom audio streams not bound to a specific file
+// AudioStream, custom audio stream
 typedef struct AudioStream {
-    unsigned int sampleRate;        // Frequency (samples per second)
-    unsigned int sampleSize;        // Bit depth (bits per sample): 8, 16, 32 (24 not supported)
-    unsigned int channels;          // Number of channels (1-mono, 2-stereo)
+    rAudioBuffer *buffer;       // Pointer to internal data used by the audio system
 
-    rAudioBuffer *buffer;           // Pointer to internal data used by the audio system
+    unsigned int sampleRate;    // Frequency (samples per second)
+    unsigned int sampleSize;    // Bit depth (bits per sample): 8, 16, 32 (24 not supported)
+    unsigned int channels;      // Number of channels (1-mono, 2-stereo, ...)
 } AudioStream;
 
-// Sound source type
+// Sound
 typedef struct Sound {
-    unsigned int sampleCount;       // Total number of samples
-    AudioStream stream;             // Audio stream
+    AudioStream stream;         // Audio stream
+    unsigned int frameCount;    // Total number of frames (considering channels)
 } Sound;
 
-// Music stream type (audio file streaming from memory)
-// NOTE: Anything longer than ~10 seconds should be streamed
+// Music, audio stream, anything longer than ~10 seconds should be streamed
 typedef struct Music {
-    int ctxType;                    // Type of music context (audio filetype)
-    void *ctxData;                  // Audio context data, depends on type
+    AudioStream stream;         // Audio stream
+    unsigned int frameCount;    // Total number of frames (considering channels)
+    bool looping;               // Music looping enable
 
-    bool looping;                   // Music looping enable
-    unsigned int sampleCount;       // Total number of samples
-
-    AudioStream stream;             // Audio stream
+    int ctxType;                // Type of music context (audio filetype)
+    void *ctxData;              // Audio context data, depends on type
 } Music;
-
-#ifdef __cplusplus
-extern "C" {            // Prevents name mangling of functions
-#endif
 
 //----------------------------------------------------------------------------------
 // Global Variables Definition
@@ -129,6 +122,10 @@ extern "C" {            // Prevents name mangling of functions
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
 //----------------------------------------------------------------------------------
+
+#ifdef __cplusplus
+extern "C" {            // Prevents name mangling of functions
+#endif
 
 // Audio device management functions
 void InitAudioDevice(void);                                     // Initialize audio device and context
@@ -174,6 +171,7 @@ void UpdateMusicStream(Music music);                            // Updates buffe
 void StopMusicStream(Music music);                              // Stop music playing
 void PauseMusicStream(Music music);                             // Pause music playing
 void ResumeMusicStream(Music music);                            // Resume playing paused music
+void SeekMusicStream(Music music, float position);              // Seek music to a position (in seconds)
 void SetMusicVolume(Music music, float volume);                 // Set volume for music (1.0 is max level)
 void SetMusicPitch(Music music, float pitch);                   // Set pitch for a music (1.0 is base level)
 float GetMusicTimeLength(Music music);                          // Get music time length (in seconds)
