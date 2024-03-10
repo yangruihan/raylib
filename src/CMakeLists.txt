@@ -1,7 +1,7 @@
 # Setup the project and settings
 project(raylib C)
-set(PROJECT_VERSION 4.0.0)
-set(API_VERSION 400)
+set(PROJECT_VERSION 5.0.0)
+set(API_VERSION 500)
 
 include(GNUInstallDirs)
 include(JoinPaths)
@@ -25,7 +25,6 @@ set(raylib_public_headers
     raylib.h
     rlgl.h
     raymath.h
-    raudio.h
     )
 
 # Sources to be compiled
@@ -39,8 +38,14 @@ set(raylib_sources
     )
 
 # <root>/cmake/GlfwImport.cmake handles the details around the inclusion of glfw
-include(GlfwImport)
+if (NOT ${PLATFORM} MATCHES "Web")
+    include(GlfwImport)
+endif ()
 
+# Sets additional platform options and link libraries for each platform
+# also selects the proper graphics API and version for that platform
+# Produces a variable LIBS_PRIVATE that will be used later
+include(LibraryConfigurations)
 
 if (USE_AUDIO)
     MESSAGE(STATUS "Audio Backend: miniaudio")
@@ -49,10 +54,6 @@ else ()
     MESSAGE(STATUS "Audio Backend: None (-DUSE_AUDIO=OFF)")
 endif ()
 
-# Sets additional platform options and link libraries for each platform
-# also selects the proper graphics API and version for that platform
-# Produces a variable LIBS_PRIVATE that will be used later
-include(LibraryConfigurations)
 
 add_library(raylib ${raylib_sources} ${raylib_public_headers})
 
@@ -61,12 +62,14 @@ if (NOT BUILD_SHARED_LIBS)
     add_library(raylib_static ALIAS raylib)
 else()
     MESSAGE(STATUS "Building raylib shared library")
-    if (MSVC)
-        target_compile_definitions(raylib
-                                   PRIVATE $<BUILD_INTERFACE:BUILD_LIBTYPE_SHARED>
-                                   INTERFACE $<INSTALL_INTERFACE:USE_LIBTYPE_SHARED>
-                                   )
-    endif ()
+    target_compile_definitions(raylib
+                               PRIVATE $<BUILD_INTERFACE:BUILD_LIBTYPE_SHARED>
+                               INTERFACE $<INSTALL_INTERFACE:USE_LIBTYPE_SHARED>
+                               )
+endif()
+
+if (${PLATFORM} MATCHES "Web")
+    target_link_options(raylib PRIVATE "-sUSE_GLFW=3")
 endif()
 
 set_target_properties(raylib PROPERTIES
@@ -77,6 +80,11 @@ set_target_properties(raylib PROPERTIES
 
 if (WITH_PIC OR BUILD_SHARED_LIBS)
     set_property(TARGET raylib PROPERTY POSITION_INDEPENDENT_CODE ON)
+endif ()
+
+if (BUILD_SHARED_LIBS)
+    # Hide raylib's symbols by default so RLAPI can expose them
+    set_property(TARGET raylib PROPERTY C_VISIBILITY_PRESET hidden)
 endif ()
 
 target_link_libraries(raylib "${LIBS_PRIVATE}")

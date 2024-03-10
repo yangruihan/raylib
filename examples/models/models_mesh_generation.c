@@ -2,10 +2,12 @@
 *
 *   raylib example - procedural mesh generation
 *
-*   This example has been created using raylib 1.8 (www.raylib.com)
-*   raylib is licensed under an unmodified zlib/libpng license (View raylib.h for details)
+*   Example originally created with raylib 1.8, last time updated with raylib 4.0
 *
-*   Copyright (c) 2017-2021 Ramon Santamaria (@raysan5)
+*   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
+*   BSD-like license that allows static linking with closed source software
+*
+*   Copyright (c) 2017-2024 Ramon Santamaria (@raysan5)
 *
 ********************************************************************************************/
 
@@ -15,6 +17,9 @@
 
 static Mesh GenMeshCustom(void);    // Generate a simple triangle mesh from code
 
+//------------------------------------------------------------------------------------
+// Program main entry point
+//------------------------------------------------------------------------------------
 int main(void)
 {
     // Initialization
@@ -31,7 +36,7 @@ int main(void)
 
     Model models[NUM_MODELS] = { 0 };
 
-    models[0] = LoadModelFromMesh(GenMeshPlane(2, 2, 5, 5));
+    models[0] = LoadModelFromMesh(GenMeshPlane(2, 2, 4, 3));
     models[1] = LoadModelFromMesh(GenMeshCube(2.0f, 1.0f, 2.0f));
     models[2] = LoadModelFromMesh(GenMeshSphere(2, 32, 32));
     models[3] = LoadModelFromMesh(GenMeshHemiSphere(2, 16, 16));
@@ -63,8 +68,6 @@ int main(void)
 
     int currentModel = 0;
 
-    SetCameraMode(camera, CAMERA_ORBITAL);  // Set a orbital camera mode
-
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
 
@@ -73,7 +76,7 @@ int main(void)
     {
         // Update
         //----------------------------------------------------------------------------------
-        UpdateCamera(&camera);      // Update internal camera and our camera
+        UpdateCamera(&camera, CAMERA_ORBITAL);
 
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         {
