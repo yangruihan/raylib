@@ -2,12 +2,16 @@
 *
 *   raylib [core] example - 2d camera mouse zoom
 *
+*   Example complexity rating: [★★☆☆] 2/4
+*
 *   Example originally created with raylib 4.2, last time updated with raylib 4.2
+*
+*   Example contributed by Jeffery Myers (@JeffM2501) and reviewed by Ramon Santamaria (@raysan5)
 *
 *   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
 *   BSD-like license that allows static linking with closed source software
 *
-*   Copyright (c) 2022-2024 Jeffery Myers (@JeffM2501)
+*   Copyright (c) 2022-2025 Jeffery Myers (@JeffM2501)
 *
 ********************************************************************************************/
 
@@ -45,7 +49,7 @@ int main ()
         else if (IsKeyPressed(KEY_TWO)) zoomMode = 1;
         
         // Translate based on mouse right click
-        if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
+        if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
         {
             Vector2 delta = GetMouseDelta();
             delta = Vector2Scale(delta, -1.0f/camera.zoom);
@@ -69,15 +73,15 @@ int main ()
                 camera.target = mouseWorldPos;
 
                 // Zoom increment
-                float scaleFactor = 1.0f + (0.25f*fabsf(wheel));
-                if (wheel < 0) scaleFactor = 1.0f/scaleFactor;
-                camera.zoom = Clamp(camera.zoom*scaleFactor, 0.125f, 64.0f);
+                // Uses log scaling to provide consistent zoom speed
+                float scale = 0.2f*wheel;
+                camera.zoom = Clamp(expf(logf(camera.zoom)+scale), 0.125f, 64.0f);
             }
         }
         else
         {
-            // Zoom based on mouse left click
-            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+            // Zoom based on mouse right click
+            if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
             {
                 // Get the world point that is under the mouse
                 Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), camera);
@@ -89,13 +93,13 @@ int main ()
                 // under the cursor to the screen space point under the cursor at any zoom
                 camera.target = mouseWorldPos;
             }
-            if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+            if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
             {
                 // Zoom increment
+                // Uses log scaling to provide consistent zoom speed
                 float deltaX = GetMouseDelta().x;
-                float scaleFactor = 1.0f + (0.01f*fabsf(deltaX));
-                if (deltaX < 0) scaleFactor = 1.0f/scaleFactor;
-                camera.zoom = Clamp(camera.zoom*scaleFactor, 0.125f, 64.0f);
+                float scale = 0.005f*deltaX;
+                camera.zoom = Clamp(expf(logf(camera.zoom)+scale), 0.125f, 64.0f);
             }
         }
         //----------------------------------------------------------------------------------
@@ -119,10 +123,16 @@ int main ()
                 DrawCircle(GetScreenWidth()/2, GetScreenHeight()/2, 50, MAROON);
                 
             EndMode2D();
+            
+            // Draw mouse reference
+            //Vector2 mousePos = GetWorldToScreen2D(GetMousePosition(), camera)
+            DrawCircleV(GetMousePosition(), 4, DARKGRAY);
+            DrawTextEx(GetFontDefault(), TextFormat("[%i, %i]", GetMouseX(), GetMouseY()), 
+                Vector2Add(GetMousePosition(), (Vector2){ -44, -24 }), 20, 2, BLACK);
 
             DrawText("[1][2] Select mouse zoom mode (Wheel or Move)", 20, 20, 20, DARKGRAY);
-            if (zoomMode == 0) DrawText("Mouse right button drag to move, mouse wheel to zoom", 20, 50, 20, DARKGRAY);
-            else DrawText("Mouse right button drag to move, mouse press and move to zoom", 20, 50, 20, DARKGRAY);
+            if (zoomMode == 0) DrawText("Mouse left button drag to move, mouse wheel to zoom", 20, 50, 20, DARKGRAY);
+            else DrawText("Mouse left button drag to move, mouse press and move to zoom", 20, 50, 20, DARKGRAY);
         
         EndDrawing();
         //----------------------------------------------------------------------------------

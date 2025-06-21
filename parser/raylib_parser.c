@@ -54,7 +54,7 @@
     raylib-parser is licensed under an unmodified zlib/libpng license, which is an OSI-certified,
     BSD-like license that allows static linking with closed source software:
 
-    Copyright (c) 2021-2024 Ramon Santamaria (@raysan5)
+    Copyright (c) 2021-2025 Ramon Santamaria (@raysan5)
 
 **********************************************************************************************/
 
@@ -72,7 +72,7 @@
 #define MAX_CALLBACKS_TO_PARSE    64    // Maximum number of callbacks to parse
 #define MAX_FUNCS_TO_PARSE      1024    // Maximum number of functions to parse
 
-#define MAX_LINE_LENGTH          512    // Maximum length of one line (including comments)
+#define MAX_LINE_LENGTH         1024    // Maximum length of one line (including comments)
 
 #define MAX_STRUCT_FIELDS         64    // Maximum number of struct fields
 #define MAX_ENUM_VALUES          512    // Maximum number of enum values
@@ -139,7 +139,7 @@ typedef struct EnumInfo {
 // Function info data
 typedef struct FunctionInfo {
     char name[64];              // Function name
-    char desc[256];             // Function description (comment at the end)
+    char desc[512];             // Function description (comment at the end)
     char retType[32];           // Return value type
     int paramCount;             // Number of function parameters
     char paramType[MAX_FUNCTION_PARAMETERS][32];   // Parameters type
@@ -1084,7 +1084,7 @@ static void ShowCommandLineInfo(void)
     printf("//                                                                              //\n");
     printf("// more info and bugs-report: github.com/raysan5/raylib/parser                  //\n");
     printf("//                                                                              //\n");
-    printf("// Copyright (c) 2021-2024 Ramon Santamaria (@raysan5)                          //\n");
+    printf("// Copyright (c) 2021-2025 Ramon Santamaria (@raysan5)                          //\n");
     printf("//                                                                              //\n");
     printf("//////////////////////////////////////////////////////////////////////////////////\n\n");
 

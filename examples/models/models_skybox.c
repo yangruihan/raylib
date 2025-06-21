@@ -2,12 +2,14 @@
 *
 *   raylib [models] example - Skybox loading and drawing
 *
+*   Example complexity rating: [★★☆☆] 2/4
+*
 *   Example originally created with raylib 1.8, last time updated with raylib 4.0
 *
 *   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
 *   BSD-like license that allows static linking with closed source software
 *
-*   Copyright (c) 2017-2024 Ramon Santamaria (@raysan5)
+*   Copyright (c) 2017-2025 Ramon Santamaria (@raysan5)
 *
 ********************************************************************************************/
 
@@ -191,7 +193,7 @@ static TextureCubemap GenTextureCubemap(Shader shader, Texture2D panorama, int s
     // STEP 1: Setup framebuffer
     //------------------------------------------------------------------------------------------
     unsigned int rbo = rlLoadTextureDepth(size, size, true);
-    cubemap.id = rlLoadTextureCubemap(0, size, format);
+    cubemap.id = rlLoadTextureCubemap(0, size, format, 1);
 
     unsigned int fbo = rlLoadFramebuffer();
     rlFramebufferAttach(fbo, rbo, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_RENDERBUFFER, 0);
